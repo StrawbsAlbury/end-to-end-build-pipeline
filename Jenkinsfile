@@ -51,7 +51,7 @@ pipeline {
             }
         }
 
-        stage('Kubernetes Deploy') {
+       stage('Kubernetes Deploy') {
             steps {
                 sh '''
                 set -e
@@ -79,6 +79,7 @@ pipeline {
                 '''
             }
         }
+
 
 
 

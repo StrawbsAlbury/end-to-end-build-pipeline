@@ -12,8 +12,11 @@ spec:
       labels:
         app: demo-web
     spec:
+      imagePullSecrets:
+        - name: cloudsmith-regcred
       containers:
         - name: demo-web
           image: docker.cloudsmith.io/pa-test-org/jenkins-build-pipeline/demo-web:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
