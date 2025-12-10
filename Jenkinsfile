@@ -65,8 +65,8 @@ pipeline {
                 echo "Applying ingress..."
                 kubectl apply -f k8s/ingress.yaml
 
-                echo "Waiting for deployment rollout..."
-                kubectl rollout status deployment/demo-web-deployment --timeout=120s
+                echo "Current deployments:"
+                kubectl get deploy
 
                 echo "Current pods:"
                 kubectl get pods -o wide
