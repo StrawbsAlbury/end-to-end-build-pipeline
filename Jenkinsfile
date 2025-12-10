@@ -54,13 +54,28 @@ pipeline {
         stage('Kubernetes Deploy') {
             steps {
                 sh '''
-                  if kubectl get deployment demo-web-deployment >/dev/null 2>&1; then
-                    kubectl set image deployment/demo-web-deployment demo-web=${FULL_IMAGE} --record
-                  else
-                    kubectl apply -f k8s/deployment.yaml
-                  fi
+                set -e
 
-                  kubectl apply -f k8s/service.yaml
+                echo "Applying deployment spec..."
+                kubectl apply -f k8s/deployment.yaml
+
+                echo "Applying service..."
+                kubectl apply -f k8s/service.yaml
+
+                echo "Applying ingress..."
+                kubectl apply -f k8s/ingress.yaml
+
+                echo "Waiting for deployment rollout..."
+                kubectl rollout status deployment/demo-web-deployment --timeout=120s
+
+                echo "Current pods:"
+                kubectl get pods -o wide
+
+                echo "Current services:"
+                kubectl get svc -o wide
+
+                echo "Current ingresses:"
+                kubectl get ingress
                 '''
             }
         }
