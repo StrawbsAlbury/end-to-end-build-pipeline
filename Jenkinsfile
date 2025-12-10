@@ -68,17 +68,27 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 script {
-                    def url = sh(
-                        script: "minikube service demo-web-service --url",
+                    // Get NodePort from the Service
+                    def nodePort = sh(
+                        script: "kubectl get svc demo-web-service -o jsonpath='{.spec.ports[0].nodePort}'",
                         returnStdout: true
                     ).trim()
 
+                    // Get Minikube IP
+                    def ip = sh(
+                        script: "minikube ip",
+                        returnStdout: true
+                    ).trim()
+
+                    def url = "http://${ip}:${nodePort}"
                     echo "Testing URL: ${url}"
 
+                    // Hit the app and check the HTML contains our text
                     sh "curl -f ${url} | grep 'Cloudsmith + Jenkins + Minikube Demo'"
                 }
             }
         }
+
     }
 
     post {
