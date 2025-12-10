@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-web-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-web
+  template:
+    metadata:
+      labels:
+        app: demo-web
+    spec:
+      containers:
+        - name: demo-web
+          image: docker.cloudsmith.io/pa-test-org/jenkins-build-pipeline/demo-web:latest
+          ports:
+            - containerPort: 3000
