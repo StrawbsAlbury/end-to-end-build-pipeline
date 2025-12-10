@@ -84,15 +84,14 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 script {
-                    // Find the demo-web pod name
+                    // Find a RUNNING demo-web pod
                     def podName = sh(
-                        script: "kubectl get pods -l app=demo-web -o jsonpath='{.items[0].metadata.name}'",
+                        script: "kubectl get pods -l app=demo-web --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}'",
                         returnStdout: true
                     ).trim()
 
                     echo "Running smoke test inside pod: ${podName}"
 
-                    // Run the HTTP check from inside the container
                     sh """
                     set -e
                     kubectl exec ${podName} -- sh -c \\
@@ -100,6 +99,7 @@ pipeline {
                     """
 
                     echo "Smoke test inside pod succeeded."
+                    echo "Open http://demo.localtest.me in your browser."
                 }
             }
         }
