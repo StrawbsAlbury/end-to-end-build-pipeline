@@ -68,23 +68,22 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 script {
-                    // Get NodePort from the Service
-                    def nodePort = sh(
-                        script: "kubectl get svc demo-web-service -o jsonpath='{.spec.ports[0].nodePort}'",
+                    // Find the demo-web pod name
+                    def podName = sh(
+                        script: "kubectl get pods -l app=demo-web -o jsonpath='{.items[0].metadata.name}'",
                         returnStdout: true
                     ).trim()
 
-                    // Get Minikube IP
-                    def ip = sh(
-                        script: "minikube ip",
-                        returnStdout: true
-                    ).trim()
+                    echo "Running smoke test inside pod: ${podName}"
 
-                    def url = "http://${ip}:${nodePort}"
-                    echo "Testing URL: ${url}"
+                    // Run the HTTP check from inside the container
+                    sh """
+                    set -e
+                    kubectl exec ${podName} -- sh -c \\
+                        "curl -fsS http://localhost:3000 | grep 'Cloudsmith + Jenkins + Minikube Demo'"
+                    """
 
-                    // Hit the app and check the HTML contains our text
-                    sh "curl -f ${url} | grep 'Cloudsmith + Jenkins + Minikube Demo'"
+                    echo "Smoke test inside pod succeeded."
                 }
             }
         }
